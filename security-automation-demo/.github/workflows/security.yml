@@ -1,0 +1,33 @@
+name: Security CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  security_checks:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Run OWASP ZAP
+      run: ./scripts/zap/zap_scan.sh
+      
+    - name: Run Nikto
+      run: ./scripts/nikto/nikto_scan.sh
+
+    - name: Run Trivy
+      run: ./scripts/trivy/trivy_scan.sh
+
+    - name: Archive Security Reports
+      uses: actions/upload-artifact@v2
+      with:
+        name: security-reports
+        path: |
+          zap_report.json
+          nikto_report.html
+          trivy_report.json
